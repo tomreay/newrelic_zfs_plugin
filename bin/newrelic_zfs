@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler/setup'
+
+require 'newrelic_plugin'
+require 'trollop'
+
+require 'newrelic_zfs'
+require 'newrelic_zfs/config'
+
+module ZfsAgent
+
+  class Agent < NewRelic::Plugin::Agent::Base
+
+    agent_guid 'com.tomreay.newrelic-zfs'
+    agent_version '1.0.0'
+    agent_config_options :instance_name, :print_metrics
+    agent_human_labels("ZFS Agent") { instance_name }
+
+    def poll_cycle
+      collector = ZFSTools::Collector.new
+      stats = collector.collect_stats
+      health_total = 0
+      stats.each do |stat|
+        if stat.name == 'UnhealthyCount'
+          health_total = health_total + stat.value
+        end
+
+        stat_name = 'ZPools/' + stat.name + '/' + stat.pool_name
+        if print_metrics
+          puts 'Reporting metric named ' + stat_name + ' with value ' + stat.value.to_s + ' and unit ' + stat.unit
+        end
+        report_metric stat_name, stat.unit, stat.value
+      end
+
+      stat_name = 'ZPools/UnhealthyCount'
+      if print_metrics
+        puts 'Reporting metric named ' + stat_name + ' with value ' + health_total.to_s + ' and unit Value'
+      end
+      report_metric stat_name, 'Value', health_total
+    end
+  end
+
+
+  opts = Trollop::options do
+    opt :config_file, "Config file", :type => :string
+  end
+
+  config_file_path = ZfsConfig::get_config_location(ARGV[0])
+  if config_file_path.nil?
+    exit
+  end
+
+  NewRelic::Plugin::Config::config_file = config_file_path
+  NewRelic::Plugin::Setup.install_agent :zfs, ZfsAgent
+  NewRelic::Plugin::Run.setup_and_run
+
+  puts 'Newrelic ZFS Agent started'
+end
