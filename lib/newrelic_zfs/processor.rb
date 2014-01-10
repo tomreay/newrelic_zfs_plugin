@@ -9,10 +9,10 @@ class Processor
   end
 
   def line_to_metrics(line)
-    pool_name
+    pool_name = nil
     metrics = []
     line.split(' ').each_with_index do |value, index|
-      if @headers[index] == 'Name'
+      if @headers[index].casecmp('Name') == 0
         pool_name = value
       else
         metric = Metric.new
@@ -30,11 +30,11 @@ class Processor
   end
 
   def split_value_and_unit(text)
-    match = /\d+\.?\d*/.match(value)
+    match = /\d+\.?\d*/.match(text)
     #If numeric value
     if match
       value = match[0]
-      unit = value.slice(value.length, text.length)
+      unit = text.slice(value.length, text.length)
       [value, unit]
     else
       [text, nil]

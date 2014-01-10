@@ -9,7 +9,11 @@ class Metric
   end
 
   def add_value(value)
-    @value = @value + value
+    if @value.nil?
+      @value
+    else
+      @value = @value + value
+    end
   end
 
   def newrelic_name

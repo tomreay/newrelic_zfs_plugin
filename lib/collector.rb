@@ -3,20 +3,23 @@ require_relative 'newrelic_zfs/processor'
 require_relative 'newrelic_zfs/converter'
 
 class Collector
-  @blacklist = ['Altroot']
-  @summary_metrics = ['UnhealthCount', 'Cap']
-  @processor = Processor.new
-  @converter = Converter.new
 
+  def initialize
+    @blacklist = ['Altroot']
+    @summary_metrics = ['UnhealthyCount', 'Cap']
+    @processor = Processor.new
+    @converter = Converter.new
+  end
   def collect_stats
     metrics = []
-    first = false
+    first = true
 
     run_command.each_line do |line|
       if first
         @processor.process_header_line(line)
+        first = false
       else
-        metrics << @processor.line_to_metrics(line)
+        metrics = metrics + @processor.line_to_metrics(line)
       end
     end
 
@@ -27,13 +30,20 @@ class Collector
     #Convert the value first, otherwise adding won't work when calculating summary metrics
     metrics.each do |metric|
       metric.value = @converter.convert_value(metric)
-    end
-
-    metrics = metrics + get_summary_metrics(metrics)
-
-    metrics.each do |metric|
       metric.name = @converter.convert_name(metric)
       metric.unit = @converter.convert_unit(metric)
+    end
+
+
+    get_summary_metrics(metrics).each do |metric|
+      metric.value = @converter.convert_value(metric)
+      metric.name = @converter.convert_name(metric)
+      metric.unit = @converter.convert_unit(metric)
+      metrics << metric
+    end
+
+    metrics.each do |metric|
+
     end
 
     metrics
@@ -41,15 +51,16 @@ class Collector
 
   def get_summary_metrics(metrics)
     metrics_hash = {}
-    @summary_metrics.each do |summary_metric|
-      metric = Metric.new
-      metric.name = summary_metric
-      metrics_hash << {summary_metric => metric}
-    end
-
     metrics.each do |metric|
-      summary_metric = metrics_hash[metric.name]
-      unless summary_metric.nil?
+      if @summary_metrics.include?(metric.name)
+        summary_metric = metrics_hash[metric.name]
+        if summary_metric.nil?
+          summary_metric = Metric.new
+          summary_metric.name = metric.name
+          summary_metric.unit = metric.unit
+          metrics_hash[metric.name] = summary_metric
+        end
+
         summary_metric.add_value(metric.value)
       end
     end
