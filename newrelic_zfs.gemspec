@@ -6,7 +6,9 @@ Gem::Specification.new do |s|
   s.description = 'Newrelic plugin to monitor ZFS pools'
   s.authors = ['Tom Reay']
   s.email = 'dev@tomreay.co.uk'
-  s.files = ['lib/newrelic_zfs.rb', 'lib/newrelic_zfs/config.rb']
+  s.files = ['lib/collector.rb', 'lib/newrelic_zfs/config.rb', 'lib/newrelic_zfs/converter.rb',
+    'lib/newrelic_zfs/metric.rb', 'lib/newrelic_zfs/processor.rb']
+  s.require_paths = ['lib/newrelic_zfs', 'lib']
   s.executables << 'newrelic_zfs'
   s.homepage = 'https://github.com/tomreay/newrelic_zfs_plugin'
   s.license = 'MIT'

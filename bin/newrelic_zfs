@@ -12,20 +12,25 @@ require 'newrelic_zfs/config'
 module ZfsAgent
 
   class Agent < NewRelic::Plugin::Agent::Base
-    @collector = Collector.new
 
     agent_guid 'com.tomreay.newrelic-zfs'
     agent_version '1.0.0'
     agent_config_options :instance_name, :print_metrics
     agent_human_labels("ZFS Agent") { instance_name }
 
+    def initialize(context, options)
+      @collector = Collector.new
+
+    end
+
     def poll_cycle
       metrics = @collector.collect_stats
       metrics.each do |metric|
         if print_metrics
-          puts 'Reporting metric named ' + metric.newrelic_name + ' with value ' + stat.value.to_s + ' and unit ' + stat.unit
+          puts 'Reporting metric named ' + metric.newrelic_name + ' with value ' +
+                   metric.value.to_s + ' and unit ' + metric.unit
         end
-        report_metric metric.newrelic_name, stat.unit, stat.value
+        report_metric metric.newrelic_name, metric.unit, metric.value
       end
     end
   end

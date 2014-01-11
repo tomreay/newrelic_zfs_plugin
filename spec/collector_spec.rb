@@ -63,7 +63,37 @@ describe Collector do
 
       metrics = collector.collect_stats
 
-      expect(metrics[3].value).to eq(2)
+      expect(metrics[2].value).to eq(2)
+      expect(metrics[2].unit).to eq('Value')
+    end
+
+    it 'Remembers the old unit when a metric becomes unavailable' do
+      collector = Collector.new
+      collector.stub(:run_command).and_return("NAME STAT1\npool1 1%\npool2 -")
+
+      metrics = collector.collect_stats
+
+      expect(metrics[1].value).to eq(0)
+      expect(metrics[1].unit).to eq('%')
+    end
+
+    it 'Excludes a metric thats on the blacklist' do
+      collector = Collector.new
+      collector.stub(:run_command).and_return("NAME ALTROOT\npool1 1%")
+
+      metrics = collector.collect_stats
+
+      expect(metrics.length).to eq(0)
+    end
+
+    it 'Temp test' do
+      collector = Collector.new
+      collector.stub(:run_command).and_return("NAME    SIZE  ALLOC   FREE    CAP  DEDUP  HEALTH  ALTROOT\n" +
+      "pool1      -      -      -      -      -  FAULTED  -\n" +
+      "pool2      -      -      -      -      -  FAULTED  -\n")
+
+      metrics = collector.collect_stats
+      expect(metrics.length).to eq(15)
     end
   end
 end

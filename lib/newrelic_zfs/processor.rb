@@ -4,7 +4,7 @@ class Processor
   def process_header_line(line)
     @headers = []
     line.split(' ').each_with_index do |header, index|
-      @headers[index] = header
+      @headers[index] = header.capitalize
     end
   end
 

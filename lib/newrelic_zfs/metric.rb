@@ -10,7 +10,7 @@ class Metric
 
   def add_value(value)
     if @value.nil?
-      @value
+      @value = value
     else
       @value = @value + value
     end
@@ -20,7 +20,7 @@ class Metric
     if is_summary_metric?
       "ZPools/#{@name}"
     else
-      "ZPools/#{@name}/#{pool_name}"
+      "ZPools/#{@name}/#{@pool_name}"
     end
   end
 end

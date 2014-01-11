@@ -1,7 +1,7 @@
 class Converter
   def initialize
     @name_conversions = { 'health' => 'UnhealthyCount' }
-    @value_conversions = { 'online' => 0}
+    @value_conversions = { 'online' => 0, '-' => 0}
     @unit_conversions = { 'b' => 'bytes', 'k' => 'kilobytes', 'm' => 'megabytes', 'g' => 'gigabytes', 't' => 'terabytes', 'p' => 'petabytes'}
     @last_seen_unit = {}
   end
@@ -19,17 +19,21 @@ class Converter
     converted = _do_convert(metric.unit, @unit_conversions)
 
     if converted.nil?
-      converted = _do_convert(metric.name, @last_seen_unit)
-    else
-      @last_seen_unit[metric.name] = converted
+      converted = @last_seen_unit[metric.name]
     end
+
+    if converted.nil?
+      converted = 'Value'
+    end
+
+    @last_seen_unit[metric.name] = converted
 
     converted
   end
 
   def _do_convert(value, conversion_hash)
-    value = value.nil? ? nil : value.downcase
-    converted = conversion_hash[value]
+    valueDowncase = value.nil? ? nil : value.downcase rescue value
+    converted = conversion_hash[valueDowncase]
 
     converted.nil? ? value : converted
   end

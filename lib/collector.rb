@@ -6,7 +6,7 @@ class Collector
 
   def initialize
     @blacklist = ['Altroot']
-    @summary_metrics = ['UnhealthyCount', 'Cap']
+    @summary_metrics = ['UnhealthyCount', 'Cap', 'Size']
     @processor = Processor.new
     @converter = Converter.new
   end
@@ -29,21 +29,16 @@ class Collector
 
     #Convert the value first, otherwise adding won't work when calculating summary metrics
     metrics.each do |metric|
-      metric.value = @converter.convert_value(metric)
       metric.name = @converter.convert_name(metric)
+      metric.value = @converter.convert_value(metric)
       metric.unit = @converter.convert_unit(metric)
     end
-
 
     get_summary_metrics(metrics).each do |metric|
-      metric.value = @converter.convert_value(metric)
       metric.name = @converter.convert_name(metric)
+      metric.value = @converter.convert_value(metric)
       metric.unit = @converter.convert_unit(metric)
       metrics << metric
-    end
-
-    metrics.each do |metric|
-
     end
 
     metrics
