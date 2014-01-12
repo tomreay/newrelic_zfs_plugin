@@ -18,7 +18,7 @@ class Processor
         metric = Metric.new
         split = split_value_and_unit(value)
         metric.name = @headers[index]
-        metric.value = split[0]
+        metric.add_value split[0]
         metric.unit = split[1]
         metrics << metric
       end

@@ -1,8 +1,9 @@
 class Converter
   def initialize
-    @name_conversions = { 'health' => 'UnhealthyCount' }
-    @value_conversions = { 'online' => 0, '-' => 0}
-    @unit_conversions = { 'b' => 'bytes', 'k' => 'kilobytes', 'm' => 'megabytes', 'g' => 'gigabytes', 't' => 'terabytes', 'p' => 'petabytes'}
+    @name_conversions = { :health => 'UnhealthyCount', :cap => 'Capacity'}
+    @value_conversions = { :online => 0, :- => 0}
+    @unit_conversions = { :b => 'bytes', :k => 'kilobytes', :m => 'megabytes',
+                          :g => 'gigabytes', :t => 'terabytes', :p => 'petabytes'}
     @last_seen_unit = {}
   end
 
@@ -11,8 +12,8 @@ class Converter
   end
 
   def convert_value(metric)
-    converted = _do_convert(metric.value, @value_conversions)
-    Integer(converted) rescue Float(converted) rescue 1
+    converted = _do_convert(metric.raw_value, @value_conversions)
+    Float(converted) rescue 1
   end
 
   def convert_unit(metric)
@@ -32,8 +33,8 @@ class Converter
   end
 
   def _do_convert(value, conversion_hash)
-    valueDowncase = value.nil? ? nil : value.downcase rescue value
-    converted = conversion_hash[valueDowncase]
+    symbol = value.nil? ? nil : value.downcase.to_sym rescue value
+    converted = conversion_hash[symbol]
 
     converted.nil? ? value : converted
   end

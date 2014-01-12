@@ -19,19 +19,24 @@ module ZfsAgent
     agent_human_labels("ZFS Agent") { instance_name }
 
     def initialize(context, options)
+      puts 'Initializing ZfsAgent'
       @collector = Collector.new
-
+      super(context, options)
     end
 
     def poll_cycle
+      puts 'Starting metrics collection'
       metrics = @collector.collect_stats
+      puts "#{metrics.length} metrics collected, sending to New Relic"
       metrics.each do |metric|
-        if print_metrics
-          puts 'Reporting metric named ' + metric.newrelic_name + ' with value ' +
-                   metric.value.to_s + ' and unit ' + metric.unit
-        end
+        puts 'Reporting metric named ' + metric.newrelic_name + ' with value ' +
+                 metric.value.to_s + ' and unit ' + metric.unit
+      end
+
+      metrics.each do |metric|
         report_metric metric.newrelic_name, metric.unit, metric.value
       end
+      puts 'Finished sending metrics to New Relic'
     end
   end
 
@@ -47,6 +52,4 @@ module ZfsAgent
   NewRelic::Plugin::Config::config_file = config_file_path
   NewRelic::Plugin::Setup.install_agent :zfs, ZfsAgent
   NewRelic::Plugin::Run.setup_and_run
-
-  puts 'Newrelic ZFS Agent started'
 end

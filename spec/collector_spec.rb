@@ -67,6 +67,17 @@ describe Collector do
       expect(metrics[2].unit).to eq('Value')
     end
 
+    it 'Collects summary metrics - mean' do
+      collector = Collector.new
+      collector.stub(:run_command).and_return("NAME CAP\npool1 1%\npool2 2%")
+
+      metrics = collector.collect_stats
+
+      expect(metrics[2].name).to eq('Capacity')
+      expect(metrics[2].value).to eq(1.5)
+      expect(metrics[2].unit).to eq('%')
+    end
+
     it 'Remembers the old unit when a metric becomes unavailable' do
       collector = Collector.new
       collector.stub(:run_command).and_return("NAME STAT1\npool1 1%\npool2 -")
