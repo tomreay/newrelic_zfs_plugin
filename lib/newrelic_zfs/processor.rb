@@ -1,5 +1,3 @@
-require_relative 'metric'
-
 class Processor
   def process_header_line(line)
     @headers = []

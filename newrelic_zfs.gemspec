@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'newrelic_zfs'
-  s.version = '1.0.1'
+  s.version = '1.0.2'
   s.date = '2014-01-04'
   s.summary = 'Newrelic ZFS'
   s.description = 'Newrelic plugin to monitor ZFS pools'

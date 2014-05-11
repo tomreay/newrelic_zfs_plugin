@@ -1,6 +1,6 @@
-require_relative 'newrelic_zfs/metric'
-require_relative 'newrelic_zfs/processor'
-require_relative 'newrelic_zfs/converter'
+require 'newrelic_zfs/metric'
+require 'newrelic_zfs/processor'
+require 'newrelic_zfs/converter'
 
 class Collector
 
